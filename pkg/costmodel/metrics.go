@@ -416,7 +416,7 @@ func (cmme *CostModelMetricsEmitter) Start() bool {
 			return strings.Split(key, ",")
 		}
 
-		var defaultRegion string = ""
+		var defaultRegion = ""
 		nodeList := cmme.KubeClusterCache.GetAllNodes()
 		if len(nodeList) > 0 {
 			var ok bool

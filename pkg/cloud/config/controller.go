@@ -228,7 +228,7 @@ func (c *Controller) CreateConfig(conf cloud.KeyedConfig) error {
 		}
 
 		// if active disable
-		if confStat.Active == true {
+		if confStat.Active {
 			confStat.Active = false
 			c.broadcastRemoveConfig(key)
 		}
@@ -269,7 +269,7 @@ func (c *Controller) EnableConfig(key, sourceStr string) error {
 		}
 
 		// if active disable
-		if confStat.Active == true {
+		if confStat.Active {
 			confStat.Active = false
 			c.broadcastRemoveConfig(key)
 		}

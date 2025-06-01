@@ -255,7 +255,8 @@ func s3RowToCloudCost(row []string, columnIndexes map[string]int, userLabelColum
 	// If there is a reservation_reservation_a_r_n on the line item use the awsRIPricingSUMColumn as cost
 	amortizedCost = listCost
 	amortizedNetCost = listCost
-	if lineItemType == TypeDiscountedUsage {
+	switch lineItemType {
+	case TypeDiscountedUsage:
 		if _, ok := columnIndexes[S3SelectRICost]; ok {
 			amortizedCost, err = GetCSVRowValueFloat(row, columnIndexes, S3SelectRICost)
 			if err != nil {
@@ -270,7 +271,7 @@ func s3RowToCloudCost(row []string, columnIndexes map[string]int, userLabelColum
 			}
 		}
 		// If there is a lineItemType of SavingsPlanCoveredUsage use the awsSPPricingSUMColumn
-	} else if lineItemType == TypeSavingsPlanCoveredUsage {
+	case TypeSavingsPlanCoveredUsage:
 		if _, ok := columnIndexes[S3SelectSPCost]; ok {
 			amortizedCost, err = GetCSVRowValueFloat(row, columnIndexes, S3SelectSPCost)
 			if err != nil {

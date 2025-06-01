@@ -167,8 +167,7 @@ func ConvertAzureStorageConfigToConfig(asc AzureStorageConfig) cloud.KeyedConfig
 		return nil
 	}
 
-	var authorizer StorageAuthorizer
-	authorizer = &SharedKeyCredential{
+	var authorizer StorageAuthorizer = &SharedKeyCredential{
 		AccessKey: asc.AccessKey,
 		Account:   asc.AccountName,
 	}

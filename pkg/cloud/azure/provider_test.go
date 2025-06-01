@@ -100,7 +100,7 @@ func TestConvertMeterToPricings(t *testing.T) {
 }
 
 func TestAzure_findCostForDisk(t *testing.T) {
-	var loc string = "location"
+	var loc = "location"
 	var size int32 = 1
 
 	az := &Azure{

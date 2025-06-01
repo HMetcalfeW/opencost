@@ -740,7 +740,8 @@ func applyGPUUsageShared(podMap map[podKey]*pod, resIsGPUShared []*source.IsGPUS
 			// if a container is using a GPU and it is shared, isGPUShared will be true
 			// if a container is using GPU and it is NOT shared, isGPUShared will be false
 			// if a container is NOT using a GPU, isGPUShared will be null
-			if res.Resource == "nvidia_com_gpu_shared" {
+			switch res.Resource {
+			case "nvidia_com_gpu_shared":
 				trueVal := true
 				if res.Data[0].Value == 1 {
 					if thisPod.Allocations[container].GPUAllocation == nil {
@@ -749,7 +750,7 @@ func applyGPUUsageShared(podMap map[podKey]*pod, resIsGPUShared []*source.IsGPUS
 						thisPod.Allocations[container].GPUAllocation.IsGPUShared = &trueVal
 					}
 				}
-			} else if res.Resource == "nvidia_com_gpu" {
+			case "nvidia_com_gpu":
 				falseVal := false
 				if res.Data[0].Value == 1 {
 					if thisPod.Allocations[container].GPUAllocation == nil {
@@ -758,7 +759,7 @@ func applyGPUUsageShared(podMap map[podKey]*pod, resIsGPUShared []*source.IsGPUS
 						thisPod.Allocations[container].GPUAllocation.IsGPUShared = &falseVal
 					}
 				}
-			} else {
+			default:
 				continue
 			}
 		}
@@ -1235,7 +1236,7 @@ func resToDeploymentLabels(resDeploymentLabels []*source.DeploymentLabelsResult)
 	// hyphens instead of underscores, keep the one that uses hyphens.
 	for key := range deploymentLabels {
 		if strings.Contains(key.Controller, "_") {
-			duplicateController := strings.Replace(key.Controller, "_", "-", -1)
+			duplicateController := strings.ReplaceAll(key.Controller, "_", "-")
 			duplicateKey := newControllerKey(key.Cluster, key.Namespace, key.ControllerKind, duplicateController)
 			if _, ok := deploymentLabels[duplicateKey]; ok {
 				delete(deploymentLabels, key)
@@ -1268,7 +1269,7 @@ func resToStatefulSetLabels(resStatefulSetLabels []*source.StatefulSetLabelsResu
 	// with hyphens instead of underscores, keep the one that uses hyphens.
 	for key := range statefulSetLabels {
 		if strings.Contains(key.Controller, "_") {
-			duplicateController := strings.Replace(key.Controller, "_", "-", -1)
+			duplicateController := strings.ReplaceAll(key.Controller, "_", "-")
 			duplicateKey := newControllerKey(key.Cluster, key.Namespace, key.ControllerKind, duplicateController)
 			if _, ok := statefulSetLabels[duplicateKey]; ok {
 				delete(statefulSetLabels, key)
@@ -1496,7 +1497,7 @@ func getServiceLabels(resServiceLabels []*source.ServiceLabelsResult) map[servic
 	// hyphens instead of underscores, keep the one that uses hyphens.
 	for key := range serviceLabels {
 		if strings.Contains(key.Service, "_") {
-			duplicateService := strings.Replace(key.Service, "_", "-", -1)
+			duplicateService := strings.ReplaceAll(key.Service, "_", "-")
 			duplicateKey := newServiceKey(key.Cluster, key.Namespace, duplicateService)
 			if _, ok := serviceLabels[duplicateKey]; ok {
 				delete(serviceLabels, key)
@@ -1648,7 +1649,7 @@ func applyLoadBalancersToPods(window opencost.Window, podMap map[podKey]*pod, lb
 			// if there was overlap. Otherwise, record a 0.0.
 			// TODO: Do we really want to include load balancers that have 0 overlap
 			// TODO: hours with the allocation?
-			var hours float64 = 0.0
+			var hours = 0.0
 			if _, ok := allocHours[alloc]; ok {
 				hours = allocHours[alloc]
 			}

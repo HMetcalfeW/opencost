@@ -742,7 +742,7 @@ func getMachineTypeVariants(mt string) []string {
 	case mtStandardD.MatchString(mt):
 		var result []string
 		result = append(result, addSuffix(mt, "s")[0])
-		dsType := strings.Replace(mt, "Standard_D", "Standard_DS", -1)
+		dsType := strings.ReplaceAll(mt, "Standard_D", "Standard_DS")
 		result = append(result, dsType)
 		result = append(result, addSuffix(dsType, "-1", "-2", "-4", "-8")...)
 		return result
@@ -752,7 +752,7 @@ func getMachineTypeVariants(mt string) []string {
 		return addSuffix(mt, "s")
 	case mtStandardG.MatchString(mt):
 		var result []string
-		gsType := strings.Replace(mt, "Standard_G", "Standard_GS", -1)
+		gsType := strings.ReplaceAll(mt, "Standard_G", "Standard_GS")
 		result = append(result, gsType)
 		return append(result, addSuffix(gsType, "-4", "-8", "-16")...)
 	case mtStandardL.MatchString(mt):
@@ -956,7 +956,7 @@ func convertMeterToPricings(info commerce.MeterInfo, regions map[string]string, 
 
 	if strings.Contains(meterCategory, "Storage") {
 		if strings.Contains(meterSubCategory, "HDD") || strings.Contains(meterSubCategory, "SSD") || strings.Contains(meterSubCategory, "Premium Files") {
-			var storageClass string = ""
+			var storageClass = ""
 			if strings.Contains(meterName, "P4 ") {
 				storageClass = AzureDiskPremiumSSDStorageClass
 			} else if strings.Contains(meterName, "E4 ") {

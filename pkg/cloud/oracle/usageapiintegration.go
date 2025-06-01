@@ -159,13 +159,14 @@ func (uai *UsageApiIntegration) GetStatus() cloud.ConnectionStatus {
 }
 
 func SelectOCICategory(service string) string {
-	if service == "Compute" {
+	switch service {
+	case "Compute":
 		return opencost.ComputeCategory
-	} else if service == "Block Storage" || service == "Object Storage" {
+	case "Block Storage", "Object Storage":
 		return opencost.StorageCategory
-	} else if service == "Load Balancer" || service == "Virtual Cloud Network" {
+	case "Load Balancer", "Virtual Cloud Network":
 		return opencost.NetworkCategory
-	} else {
+	default:
 		return opencost.OtherCategory
 	}
 }

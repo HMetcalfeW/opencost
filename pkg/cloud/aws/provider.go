@@ -510,7 +510,8 @@ func (aws *AWS) UpdateConfigFromConfigMap(cm map[string]string) (*models.CustomP
 
 func (aws *AWS) UpdateConfig(r io.Reader, updateType string) (*models.CustomPricing, error) {
 	return aws.Config.Update(func(c *models.CustomPricing) error {
-		if updateType == SpotInfoUpdateType {
+		switch updateType {
+		case SpotInfoUpdateType:
 			asfi := AwsSpotFeedInfo{}
 			err := json.NewDecoder(r).Decode(&asfi)
 			if err != nil {
@@ -534,7 +535,7 @@ func (aws *AWS) UpdateConfig(r io.Reader, updateType string) (*models.CustomPric
 			c.SpotLabel = asfi.SpotLabel
 			c.SpotLabelValue = asfi.SpotLabelValue
 
-		} else if updateType == AthenaInfoUpdateType {
+		case AthenaInfoUpdateType:
 			aai := AwsAthenaInfo{}
 			err := json.NewDecoder(r).Decode(&aai)
 			if err != nil {
@@ -561,7 +562,7 @@ func (aws *AWS) UpdateConfig(r io.Reader, updateType string) (*models.CustomPric
 				c.MasterPayerARN = aai.MasterPayerARN
 			}
 			c.AthenaProjectID = aai.AccountID
-		} else {
+		default:
 			a := make(map[string]interface{})
 			err := json.NewDecoder(r).Decode(&a)
 			if err != nil {
@@ -840,7 +841,10 @@ func (aws *AWS) DownloadPricingData() error {
 	aws.ProjectID = c.ProjectID
 	aws.SpotDataRegion = c.SpotDataRegion
 
-	aws.ConfigureAuthWith(c) // load aws authentication from configuration or secret
+	err = aws.ConfigureAuthWith(c) // load aws authentication from configuration or secret
+	if err != nil {
+		return fmt.Errorf("error configuring Cloud Provider %s", err)
+	}
 
 	if len(aws.SpotDataBucket) != 0 && len(aws.ProjectID) == 0 {
 		log.Warnf("using SpotDataBucket \"%s\" without ProjectID will not end well", aws.SpotDataBucket)
@@ -1600,7 +1604,10 @@ func (aws *AWS) getAddressesForRegion(ctx context.Context, region string) (*ec2.
 }
 
 func (aws *AWS) getAllAddresses() ([]*ec2Types.Address, error) {
-	aws.ConfigureAuth() // load authentication data into env vars
+	err := aws.ConfigureAuth() // load authentication data into env vars
+	if err != nil {
+		return nil, fmt.Errorf("error configuring Cloud Provider %s", err)
+	}
 
 	regions := aws.Regions()
 
@@ -1715,7 +1722,10 @@ func (aws *AWS) getDisksForRegion(ctx context.Context, region string, maxResults
 }
 
 func (aws *AWS) getAllDisks() ([]*ec2Types.Volume, error) {
-	aws.ConfigureAuth() // load authentication data into env vars
+	err := aws.ConfigureAuth() // load authentication data into env vars
+	if err != nil {
+		return nil, fmt.Errorf("error configuring Cloud Provider %s", err)
+	}
 
 	regions := aws.Regions()
 
@@ -2271,7 +2281,10 @@ type spotInfo struct {
 
 func (aws *AWS) parseSpotData(bucket string, prefix string, projectID string, region string) (map[string]*spotInfo, error) {
 
-	aws.ConfigureAuth() // configure aws api authentication by setting env vars
+	err := aws.ConfigureAuth() // configure aws api authentication by setting env vars
+	if err != nil {
+		return nil, fmt.Errorf("error configuring Cloud Provider %s", err)
+	}
 
 	s3Prefix := projectID
 	if len(prefix) != 0 {
@@ -2426,7 +2439,10 @@ func (aws *AWS) parseSpotData(bucket string, prefix string, projectID string, re
 			log.DedupedInfof(5, "Found spot info for: %s", spot.InstanceID)
 			spots[spot.InstanceID] = &spot
 		}
-		gr.Close()
+		err = gr.Close()
+		if err != nil {
+			return nil, err
+		}
 	}
 	return spots, nil
 }

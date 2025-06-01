@@ -120,9 +120,8 @@ func ConvertAlibabaInfoToConfig(acc AlibabaInfo) cloud.KeyedConfig {
 	if acc.IsEmpty() {
 		return nil
 	}
-	var configurer Authorizer
 
-	configurer = &AccessKey{
+	configurer := &AccessKey{
 		AccessKeyID:     acc.AlibabaServiceKeyName,
 		AccessKeySecret: acc.AlibabaServiceKeySecret,
 	}

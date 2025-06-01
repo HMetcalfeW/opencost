@@ -157,10 +157,11 @@ func (c *CSVProvider) DownloadPricingData() error {
 			key = fmt.Sprintf("%s,%s", strings.ToLower(p.Region), strings.ToLower(p.InstanceID))
 			c.UsesRegion = true
 		}
-		if p.AssetClass == "pv" {
+		switch p.AssetClass {
+		case "pv":
 			pvpricing[key] = &p
 			c.PVMapField = p.InstanceIDField
-		} else if p.AssetClass == "node" {
+		case "node":
 			pricing[key] = &p
 			classKey := p.Region + "," + p.InstanceType + "," + p.AssetClass
 			cost, err := strconv.ParseFloat(p.MarketPriceHourly, 64)
@@ -180,13 +181,13 @@ func (c *CSVProvider) DownloadPricingData() error {
 			}
 
 			c.NodeMapField = p.InstanceIDField
-		} else if p.AssetClass == "gpu" {
+		case "gpu":
 			gpupricing[key] = &p
 			c.GPUMapFields = append(c.GPUMapFields, strings.ToLower(p.InstanceIDField))
-		} else if p.AssetClass == "gpulabel" {
+		case "gpulabel":
 			labelKeyValue := p.InstanceIDField + "=" + p.InstanceID
 			gpulabelpricing[labelKeyValue] = &p
-		} else {
+		default:
 			log.Infof("Unrecognized asset class %s, defaulting to node", p.AssetClass)
 			pricing[key] = &p
 			c.NodeMapField = p.InstanceIDField
@@ -329,15 +330,16 @@ func NodeValueFromMapField(m string, n *clustercache.Node, useRegion bool) strin
 		}
 		return toReturn + n.SpecProviderID
 	} else if len(mf) > 1 && mf[0] == "metadata" {
-		if mf[1] == "name" {
+		switch mf[1] {
+		case "name":
 			return toReturn + n.Name
-		} else if mf[1] == "labels" {
+		case "labels":
 			lkey := strings.Join(mf[2:], ".")
 			return toReturn + n.Labels[lkey]
-		} else if mf[1] == "annotations" {
+		case "annotations":
 			akey := strings.Join(mf[2:], ".")
 			return toReturn + n.Annotations[akey]
-		} else {
+		default:
 			log.DedupedInfof(10, "Unsupported InstanceIDField %s in CSV For Node", m)
 			return ""
 		}
@@ -350,15 +352,16 @@ func NodeValueFromMapField(m string, n *clustercache.Node, useRegion bool) strin
 func PVValueFromMapField(m string, n *clustercache.PersistentVolume) string {
 	mf := strings.Split(m, ".")
 	if len(mf) > 1 && mf[0] == "metadata" {
-		if mf[1] == "name" {
+		switch mf[1] {
+		case "name":
 			return n.Name
-		} else if mf[1] == "labels" {
+		case "labels":
 			lkey := strings.Join(mf[2:], "")
 			return n.Labels[lkey]
-		} else if mf[1] == "annotations" {
+		case "annotations":
 			akey := strings.Join(mf[2:], "")
 			return n.Annotations[akey]
-		} else {
+		default:
 			log.Errorf("Unsupported InstanceIDField %s in CSV For PV", m)
 			return ""
 		}

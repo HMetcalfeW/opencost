@@ -273,27 +273,28 @@ func generateAggKey(cc *CustomCost, aggregateBy []CustomCostProperty) (string, e
 	var aggKeys []string
 	for _, agg := range aggregateBy {
 		var aggKey string
-		if agg == CustomCostZoneProp {
+		switch agg {
+		case CustomCostZoneProp:
 			aggKey = cc.Zone
-		} else if agg == CustomCostAccountNameProp {
+		case CustomCostAccountNameProp:
 			aggKey = cc.AccountName
-		} else if agg == CustomCostChargeCategoryProp {
+		case CustomCostChargeCategoryProp:
 			aggKey = cc.ChargeCategory
-		} else if agg == CustomCostDescriptionProp {
+		case CustomCostDescriptionProp:
 			aggKey = cc.Description
-		} else if agg == CustomCostResourceNameProp {
+		case CustomCostResourceNameProp:
 			aggKey = cc.ResourceName
-		} else if agg == CustomCostResourceTypeProp {
+		case CustomCostResourceTypeProp:
 			aggKey = cc.ResourceType
-		} else if agg == CustomCostProviderIdProp {
+		case CustomCostProviderIdProp:
 			aggKey = cc.ProviderId
-		} else if agg == CustomCostUsageUnitProp {
+		case CustomCostUsageUnitProp:
 			aggKey = cc.UsageUnit
-		} else if agg == CustomCostDomainProp {
+		case CustomCostDomainProp:
 			aggKey = cc.Domain
-		} else if agg == CustomCostCostSourceProp {
+		case CustomCostCostSourceProp:
 			aggKey = cc.CostSource
-		} else {
+		default:
 			return "", fmt.Errorf("unsupported aggregation type: %s", agg)
 		}
 

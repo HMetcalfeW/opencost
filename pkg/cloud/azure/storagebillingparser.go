@@ -40,7 +40,7 @@ func (asbp *AzureStorageBillingParser) ParseBillingData(start, end time.Time, re
 		return err
 	}
 
-	serviceURL := fmt.Sprintf(asbp.StorageConnection.getBlobURLTemplate(), asbp.Account, "")
+	serviceURL := fmt.Sprintf(asbp.getBlobURLTemplate(), asbp.Account, "")
 	client, err := asbp.Authorizer.GetBlobClient(serviceURL)
 	if err != nil {
 		asbp.ConnectionStatus = cloud.FailedConnection

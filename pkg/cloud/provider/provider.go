@@ -435,7 +435,7 @@ func ParseLocalDiskID(id string) string {
 
 			id = fmt.Sprintf("%s/disks/%s%06s", split[0], vmSplit[0], strconv.FormatInt(vmNum, 32))
 		}
-		id = strings.Replace(id, "/virtualMachines/", "/disks/", -1)
+		id = strings.ReplaceAll(id, "/virtualMachines/", "/disks/")
 		id = strings.ToLower(id)
 		return fmt.Sprintf("%s_osdisk", id)
 	}

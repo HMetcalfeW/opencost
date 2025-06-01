@@ -517,7 +517,7 @@ func (alibaba *Alibaba) NodePricing(key models.Key) (*models.Node, models.Pricin
 		pricing, ok = alibaba.Pricing[kf.FeaturesWithOtherDisk("")]
 		if !ok {
 			log.Errorf("Node pricing information not found for node with feature: %s . Existing keys are: %+v", keyFeature, keys)
-			return nil, meta, fmt.Errorf("Node pricing information not found for node with feature: %s letting it use default values", keyFeature)
+			return nil, meta, fmt.Errorf("node pricing information not found for node with feature: %s letting it use default values", keyFeature)
 		}
 	}
 
@@ -542,7 +542,7 @@ func (alibaba *Alibaba) PVPricing(pvk models.PVKey) (*models.PV, error) {
 
 	if !ok {
 		log.Debugf("Persistent Volume pricing not found for PV with feature: %s", keyFeature)
-		return nil, fmt.Errorf("Persistent Volume pricing not found for PV with feature: %s letting it use default values", keyFeature)
+		return nil, fmt.Errorf("persistent volume pricing not found for PV with feature: %s letting it use default values", keyFeature)
 	}
 
 	log.Debugf("returning the PV price for the node with feature: %s", keyFeature)
@@ -956,7 +956,7 @@ func createDescribePriceACSRequest(i interface{}) (*requests.CommonRequest, erro
 	request.Version = ALIBABA_ECS_VERSION
 	request.Scheme = requests.HTTPS
 	request.ApiName = ALIBABA_DESCRIBE_PRICE_API_ACTION
-	switch i.(type) {
+	switch v := i.(type) {
 	case *SlimK8sNode:
 		node := i.(*SlimK8sNode)
 		request.QueryParams["RegionId"] = node.RegionID
@@ -997,7 +997,7 @@ func createDescribePriceACSRequest(i interface{}) (*requests.CommonRequest, erro
 		request.TransToAcsRequest()
 		return request, nil
 	default:
-		return nil, fmt.Errorf("unsupported ECS type (%T) for DescribePrice at this time", i)
+		return nil, fmt.Errorf("unsupported ECS type (%T) for DescribePrice at this time", v)
 	}
 }
 
@@ -1023,7 +1023,7 @@ func determineKeyForPricing(i interface{}) (string, error) {
 	if i == nil {
 		return "", fmt.Errorf("nil component passed to determine key")
 	}
-	switch i.(type) {
+	switch v := i.(type) {
 	case *SlimK8sNode:
 		node := i.(*SlimK8sNode)
 		var diskCategory, diskSizeInGiB, diskPerformanceLevel string
@@ -1044,7 +1044,7 @@ func determineKeyForPricing(i interface{}) (string, error) {
 		keyLookup := stringutil.DeleteEmptyStringsFromArray([]string{disk.RegionID, disk.DiskType, disk.DiskCategory, disk.PerformanceLevel, disk.SizeInGiB})
 		return strings.Join(keyLookup, "::"), nil
 	default:
-		return "", fmt.Errorf("unsupported ECS type (%T) at this time", i)
+		return "", fmt.Errorf("unsupported ECS type (%T) at this time", v)
 	}
 }
 
@@ -1074,7 +1074,7 @@ func processDescribePriceAndCreateAlibabaPricing(client *sdk.Client, i interface
 	if i == nil {
 		return nil, fmt.Errorf("nil component passed to process the pricing information")
 	}
-	switch i.(type) {
+	switch v := i.(type) {
 	case *SlimK8sNode:
 		node := i.(*SlimK8sNode)
 		req, err := createDescribePriceACSRequest(node)
@@ -1125,7 +1125,7 @@ func processDescribePriceAndCreateAlibabaPricing(client *sdk.Client, i interface
 			pricing.PricingTerms = NewAlibabaPricingTerms(ALIBABA_PAY_AS_YOU_GO_BILLING, NewAlibabaPricingDetails(response.PriceInfo.Price.TradePrice, ALIBABA_HOUR_PRICE_UNIT, response.PriceInfo.Price.TradePrice, response.PriceInfo.Price.Currency))
 		}
 	default:
-		return nil, fmt.Errorf("unsupported ECS Pricing component of type (%T) at this time", i)
+		return nil, fmt.Errorf("unsupported ECS Pricing component of type (%T) at this time", v)
 	}
 
 	return pricing, nil
@@ -1266,7 +1266,7 @@ func generateSlimK8sNodeFromV1Node(node *clustercache.Node) *SlimK8sNode {
 	}
 
 	instanceFamily = getInstanceFamilyFromType(instanceType)
-	memorySizeInKiB = fmt.Sprintf("%s", node.Status.Capacity.Memory())
+	memorySizeInKiB = node.Status.Capacity.Memory().String()
 	providerID = node.SpecProviderID // Alibaba Cloud provider doesnt follow convention of prefix with cloud provider name
 
 	// Looking at current Instance offering , all of the Instances seem to be I/O optimized - https://www.alibabacloud.com/help/en/elastic-compute-service/latest/instance-family
@@ -1306,7 +1306,7 @@ func generateSlimK8sDiskFromV1PV(pv *clustercache.PersistentVolume, regionID str
 	//TO-DO: Disk supports month and hour prices , defaulting to hour
 	priceUnit := ALIBABA_HOUR_PRICE_UNIT
 
-	sizeQuantity := fmt.Sprintf("%s", pv.Spec.Capacity.Storage())
+	sizeQuantity := pv.Spec.Capacity.Storage().String()
 
 	// res := sizeRegEx.FindAllStringSubmatch(sizeQuantity, 1)
 

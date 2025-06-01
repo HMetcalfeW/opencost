@@ -238,7 +238,7 @@ func SelectAWSCategory(providerID, usageType, service string) string {
 	}
 }
 
-var parseARNRx = regexp.MustCompile("^.+\\/(.+)?") // Capture "a406f7761142e4ef58a8f2ba478d2db2" from "arn:aws:elasticloadbalancing:us-east-1:297945954695:loadbalancer/a406f7761142e4ef58a8f2ba478d2db2"
+var parseARNRx = regexp.MustCompile(`^.+/(.+)?`) // Capture "a406f7761142e4ef58a8f2ba478d2db2" from "arn:aws:elasticloadbalancing:us-east-1:297945954695:loadbalancer/a406f7761142e4ef58a8f2ba478d2db2"
 
 func ParseARN(id string) string {
 	match := parseARNRx.FindStringSubmatch(id)

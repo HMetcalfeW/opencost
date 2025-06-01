@@ -321,13 +321,14 @@ func AzureSetProviderID(abv *BillingRowValues) (providerID string, isVMSSShared 
 }
 
 func SelectAzureCategory(meterCategory string) string {
-	if meterCategory == "Virtual Machines" || meterCategory == "Virtual Machines Licenses" {
+	switch meterCategory {
+	case "Virtual Machines", "Virtual Machines Licenses":
 		return opencost.ComputeCategory
-	} else if meterCategory == "Storage" {
+	case "Storage":
 		return opencost.StorageCategory
-	} else if meterCategory == "Load Balancer" || meterCategory == "Bandwidth" || meterCategory == "Virtual Network" {
+	case "Load Balancer", "Bandwidth", "Virtual Network":
 		return opencost.NetworkCategory
-	} else {
+	default:
 		return opencost.OtherCategory
 	}
 }

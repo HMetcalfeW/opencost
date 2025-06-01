@@ -223,7 +223,8 @@ func (gcp *GCP) UpdateConfigFromConfigMap(a map[string]string) (*models.CustomPr
 
 func (gcp *GCP) UpdateConfig(r io.Reader, updateType string) (*models.CustomPricing, error) {
 	return gcp.Config.Update(func(c *models.CustomPricing) error {
-		if updateType == BigqueryUpdateType {
+		switch updateType {
+		case BigqueryUpdateType:
 			a := BigQueryConfig{}
 			err := json.NewDecoder(r).Decode(&a)
 			if err != nil {
@@ -248,7 +249,7 @@ func (gcp *GCP) UpdateConfig(r io.Reader, updateType string) (*models.CustomPric
 				}
 				gcp.ServiceKeyProvided = true
 			}
-		} else if updateType == aws.AthenaInfoUpdateType {
+		case aws.AthenaInfoUpdateType:
 			a := aws.AwsAthenaInfo{}
 			err := json.NewDecoder(r).Decode(&a)
 			if err != nil {
@@ -263,7 +264,7 @@ func (gcp *GCP) UpdateConfig(r io.Reader, updateType string) (*models.CustomPric
 			c.ServiceKeyName = a.ServiceKeyName
 			c.ServiceKeySecret = a.ServiceKeySecret
 			c.AthenaProjectID = a.AccountID
-		} else {
+		default:
 			a := make(map[string]interface{})
 			err := json.NewDecoder(r).Decode(&a)
 			if err != nil {
@@ -1442,9 +1443,10 @@ func (gcp *GCP) GetPVKey(pv *clustercache.PersistentVolume, parameters map[strin
 func (key *pvKey) Features() string {
 	// TODO: regional cluster pricing.
 	storageClass := key.StorageClassParameters["type"]
-	if storageClass == "pd-ssd" {
+	switch storageClass {
+	case "pd-ssd":
 		storageClass = "ssd"
-	} else if storageClass == "pd-standard" {
+	case "pd-standard":
 		storageClass = "pdstandard"
 	}
 	replicationType := ""
