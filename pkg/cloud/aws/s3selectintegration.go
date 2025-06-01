@@ -309,7 +309,7 @@ func s3RowToCloudCost(row []string, columnIndexes map[string]int, userLabelColum
 	itemStart, err := time.Parse(S3SelectDateLayout, startStr)
 	if err != nil {
 		return nil, fmt.Errorf(
-			"Unable to parse '%s': '%s'",
+			"unable to parse '%s': '%s'",
 			S3SelectStartDate,
 			err.Error(),
 		)

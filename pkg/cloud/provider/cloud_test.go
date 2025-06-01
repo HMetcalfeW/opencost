@@ -246,19 +246,19 @@ func TestNodePriceFromCSVWithGPULabels(t *testing.T) {
 	tempPath := t.TempDir()
 	currentPath, err := filepath.Abs(".")
 	if err != nil {
-		t.Skip(fmt.Sprintf("Unable to get absolute path for current dir: '%s' - Error: %s - Skipping test.", currentPath, err))
+		t.Skipf("Unable to get absolute path for current dir: '%s' - Error: %s - Skipping test.", currentPath, err)
 		return
 	}
 
 	configPath, err := filepath.Rel(currentPath, tempPath)
 	if err != nil {
-		t.Skip(fmt.Sprintf("Unable to get relative path for temp dir: '%s' - Error: %s - Skipping test.", tempPath, err))
+		t.Skipf("Unable to get relative path for temp dir: '%s' - Error: %s - Skipping test.", tempPath, err)
 		return
 	}
 
 	err = os.WriteFile(filepath.Join(configPath, "default.json"), []byte(defaultConfigJson), 0644)
 	if err != nil {
-		t.Skip(fmt.Sprintf("Unable to write temporary json config file: '%s' - Error: %s - Skipping test.", filepath.Join(configPath, "default.json"), err))
+		t.Skipf("Unable to write temporary json config file: '%s' - Error: %s - Skipping test.", filepath.Join(configPath, "default.json"), err)
 		return
 	}
 
@@ -315,19 +315,19 @@ func TestRKE2NodePriceFromCSVWithGPULabels(t *testing.T) {
 	tempPath := t.TempDir()
 	currentPath, err := filepath.Abs(".")
 	if err != nil {
-		t.Skip(fmt.Sprintf("Unable to get absolute path for current dir: '%s' - Error: %s - Skipping test.", currentPath, err))
+		t.Skipf("Unable to get absolute path for current dir: '%s' - Error: %s - Skipping test.", currentPath, err)
 		return
 	}
 
 	configPath, err := filepath.Rel(currentPath, tempPath)
 	if err != nil {
-		t.Skip(fmt.Sprintf("Unable to get relative path for temp dir: '%s' - Error: %s - Skipping test.", tempPath, err))
+		t.Skipf("Unable to get relative path for temp dir: '%s' - Error: %s - Skipping test.", tempPath, err)
 		return
 	}
 
 	err = os.WriteFile(filepath.Join(configPath, "default.json"), []byte(defaultConfigJson), 0644)
 	if err != nil {
-		t.Skip(fmt.Sprintf("Unable to write temporary json config file: '%s' - Error: %s - Skipping test.", filepath.Join(configPath, "default.json"), err))
+		t.Skipf("Unable to write temporary json config file: '%s' - Error: %s - Skipping test.", filepath.Join(configPath, "default.json"), err)
 		return
 	}
 
@@ -654,19 +654,19 @@ func TestNodePriceFromCSVWithBadConfig(t *testing.T) {
 	tempPath := t.TempDir()
 	currentPath, err := filepath.Abs(".")
 	if err != nil {
-		t.Skip(fmt.Sprintf("Unable to get absolute path for current dir: '%s' - Error: %s - Skipping test.", currentPath, err))
+		t.Skipf("Unable to get absolute path for current dir: '%s' - Error: %s - Skipping test.", currentPath, err)
 		return
 	}
 
 	configPath, err := filepath.Rel(currentPath, tempPath)
 	if err != nil {
-		t.Skip(fmt.Sprintf("Unable to get relative path for temp dir: '%s' - Error: %s - Skipping test.", tempPath, err))
+		t.Skipf("Unable to get relative path for temp dir: '%s' - Error: %s - Skipping test.", tempPath, err)
 		return
 	}
 
 	err = os.WriteFile(filepath.Join(configPath, "invalid.json"), []byte(invalidConfigJson), 0644)
 	if err != nil {
-		t.Skip(fmt.Sprintf("Unable to write temporary json config file: '%s' - Error: %s - Skipping test.", filepath.Join(configPath, "invalid.json"), err))
+		t.Skipf("Unable to write temporary json config file: '%s' - Error: %s - Skipping test.", filepath.Join(configPath, "invalid.json"), err)
 		return
 	}
 
@@ -911,7 +911,7 @@ func TestNodePriceFromCSVByClass(t *testing.T) {
 	k2 := c.GetKey(n2.Labels, n)
 
 	c.DownloadPricingData()
-	resN2, _, err := c.NodePricing(k2)
+	resN2, _, _ := c.NodePricing(k2)
 
 	if resN2 != nil {
 		t.Errorf("CSV provider should return nil on missing node, instead returned %+v", resN2)

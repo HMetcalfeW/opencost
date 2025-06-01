@@ -168,7 +168,7 @@ type BigQueryConfig struct {
 func (bqc *BigQueryConfig) IsEmpty() bool {
 	return bqc.ProjectID == "" &&
 		bqc.BillingDataDataset == "" &&
-		(bqc.Key == nil || len(bqc.Key) == 0)
+		(len(bqc.Key) == 0)
 }
 func (gcp *GCP) GetManagementPlatform() (string, error) {
 	nodes := gcp.Clientset.GetAllNodes()

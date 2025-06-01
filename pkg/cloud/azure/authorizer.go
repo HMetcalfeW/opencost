@@ -45,10 +45,7 @@ func (dac *DefaultAzureCredentialHolder) Equals(config cloud.Config) bool {
 		return false
 	}
 	_, ok := config.(*DefaultAzureCredentialHolder)
-	if !ok {
-		return false
-	}
-	return true
+	return ok
 }
 
 func (dac *DefaultAzureCredentialHolder) Sanitize() cloud.Config {

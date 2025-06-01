@@ -1440,11 +1440,11 @@ func (aws *AWS) NodePricing(k models.Key) (*models.Node, models.PricingMetadata,
 				BaseGPUPrice:     aws.BaseGPUPrice,
 				UsageType:        usageType,
 				UsesBaseCPUPrice: true,
-			}, meta, fmt.Errorf("Unable to find any Pricing data for \"%s\"", key)
+			}, meta, fmt.Errorf("unable to find any pricing data for \"%s\"", key)
 		}
 		return aws.createNode(terms, usageType, k)
 	} else { // Fall back to base pricing if we can't find the key. Base pricing is handled at the costmodel level.
-		return nil, meta, fmt.Errorf("Invalid Pricing Key \"%s\"", key)
+		return nil, meta, fmt.Errorf("invalid pricing key \"%s\"", key)
 
 	}
 }
@@ -1565,7 +1565,7 @@ func (aws *AWS) loadAWSAuthSecret(force bool) (*AWSAccessKey, error) {
 
 	exists, err := fileutil.FileExists(models.AuthSecretPath)
 	if !exists || err != nil {
-		return nil, fmt.Errorf("Failed to locate service account file: %s", models.AuthSecretPath)
+		return nil, fmt.Errorf("failed to locate service account file: %s", models.AuthSecretPath)
 	}
 
 	result, err := os.ReadFile(models.AuthSecretPath)
@@ -1696,11 +1696,7 @@ func (aws *AWS) GetAddresses() ([]byte, error) {
 }
 
 func (aws *AWS) isAddressOrphaned(address *ec2Types.Address) bool {
-	if address.AssociationId != nil {
-		return false
-	}
-
-	return true
+	return address.AssociationId == nil
 }
 
 func (aws *AWS) getDisksForRegion(ctx context.Context, region string, maxResults int32, nextToken *string) (*ec2.DescribeVolumesOutput, error) {
@@ -2043,7 +2039,7 @@ func (aws *AWS) GetSavingsPlanDataFromAthena() error {
 		return err
 	}
 	if cfg.AthenaBucketName == "" {
-		err = fmt.Errorf("No Athena Bucket configured")
+		err = fmt.Errorf("no athena bucket configured")
 		aws.RIPricingError = err
 		return err
 	}
@@ -2117,7 +2113,7 @@ func (aws *AWS) GetSavingsPlanDataFromAthena() error {
 	err = aws.QueryAthenaPaginated(context.TODO(), query, processResults)
 	if err != nil {
 		aws.RIPricingError = err
-		return fmt.Errorf("Error fetching Savings Plan Data: %s", err)
+		return fmt.Errorf("error fetching savings plan data: %s", err)
 	}
 
 	return nil
@@ -2137,7 +2133,7 @@ func (aws *AWS) GetReservationDataFromAthena() error {
 		return err
 	}
 	if cfg.AthenaBucketName == "" {
-		err = fmt.Errorf("No Athena Bucket configured")
+		err = fmt.Errorf("no athena bucket configured")
 		aws.RIPricingError = err
 		return err
 	}
@@ -2219,7 +2215,7 @@ func (aws *AWS) GetReservationDataFromAthena() error {
 	err = aws.QueryAthenaPaginated(context.TODO(), query, processResults)
 	if err != nil {
 		aws.RIPricingError = err
-		return fmt.Errorf("Error fetching Reserved Instance Data: %s", err)
+		return fmt.Errorf("error fetching Reserved Instance Data: %s", err)
 	}
 	aws.RIPricingError = nil
 	return nil

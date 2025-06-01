@@ -47,8 +47,8 @@ type ConfigChangedHandler func(ChangeType, []byte)
 // DefaultHandlerPriority is used as the priority for any handlers added via AddChangeHandler
 const DefaultHandlerPriority int = 1000
 
-// NoBackingStore error is used when the config file's backing storage is missing
-var NoBackingStore error = errors.New("Backing storage does not exist.")
+// ErrNoBackingStore error is used when the config file's backing storage is missing
+var ErrNoBackingStore error = errors.New("backing storage does not exist")
 
 // ConfigFile is representation of a configuration file that can be written to, read, and watched
 // for updates
@@ -85,7 +85,7 @@ func (cf *ConfigFile) Path() string {
 // Write will write the binary data to the file.
 func (cf *ConfigFile) Write(data []byte) error {
 	if cf.store == nil {
-		return NoBackingStore
+		return ErrNoBackingStore
 	}
 
 	e := cf.store.Write(cf.file, data)
@@ -107,7 +107,7 @@ func (cf *ConfigFile) Read() ([]byte, error) {
 // internalRead is used to allow a forced override of data cache to refresh data
 func (cf *ConfigFile) internalRead(force bool) ([]byte, error) {
 	if cf.store == nil {
-		return nil, NoBackingStore
+		return nil, ErrNoBackingStore
 	}
 
 	cf.dataLock.Lock()
@@ -129,7 +129,7 @@ func (cf *ConfigFile) internalRead(force bool) ([]byte, error) {
 // Stat returns the StorageStats for the file.
 func (cf *ConfigFile) Stat() (*storage.StorageInfo, error) {
 	if cf.store == nil {
-		return nil, NoBackingStore
+		return nil, ErrNoBackingStore
 	}
 
 	return cf.store.Stat(cf.file)
@@ -139,7 +139,7 @@ func (cf *ConfigFile) Stat() (*storage.StorageInfo, error) {
 // the result will be false with the provided error.
 func (cf *ConfigFile) Exists() (bool, error) {
 	if cf.store == nil {
-		return false, NoBackingStore
+		return false, ErrNoBackingStore
 	}
 
 	return cf.store.Exists(cf.file)
@@ -148,7 +148,7 @@ func (cf *ConfigFile) Exists() (bool, error) {
 // Delete removes the file from storage permanently.
 func (cf *ConfigFile) Delete() error {
 	if cf.store == nil {
-		return NoBackingStore
+		return ErrNoBackingStore
 	}
 
 	e := cf.store.Remove(cf.file)

@@ -42,7 +42,7 @@ func (gkc *ServiceAccountKey) MarshalJSON() ([]byte, error) {
 }
 
 func (gkc *ServiceAccountKey) Validate() error {
-	if gkc.Key == nil || len(gkc.Key) == 0 {
+	if len(gkc.Key) == 0 {
 		return fmt.Errorf("ServiceAccountKey: missing Key")
 	}
 
@@ -116,11 +116,7 @@ func (wi *WorkloadIdentity) Equals(config cloud.Config) bool {
 		return false
 	}
 	_, ok := config.(*WorkloadIdentity)
-	if !ok {
-		return false
-	}
-
-	return true
+	return ok
 }
 
 func (wi *WorkloadIdentity) Sanitize() cloud.Config {

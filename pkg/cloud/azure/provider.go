@@ -64,17 +64,6 @@ var (
 		"ue": "uae",
 	}
 
-	//mtBasic, _     = regexp.Compile("^BASIC.A\\d+[_Promo]*$")
-	//mtStandardA, _ = regexp.Compile("^A\\d+[_Promo]*$")
-	mtStandardB, _ = regexp.Compile(`^Standard_B\d+m?[_v\d]*[_Promo]*$`)
-	mtStandardD, _ = regexp.Compile(`^Standard_D\d[_v\d]*[_Promo]*$`)
-	mtStandardE, _ = regexp.Compile(`^Standard_E\d+i?[_v\d]*[_Promo]*$`)
-	mtStandardF, _ = regexp.Compile(`^Standard_F\d+[_v\d]*[_Promo]*$`)
-	mtStandardG, _ = regexp.Compile(`^Standard_G\d+[_v\d]*[_Promo]*$`)
-	mtStandardL, _ = regexp.Compile(`^Standard_L\d+[_v\d]*[_Promo]*$`)
-	mtStandardM, _ = regexp.Compile(`^Standard_M\d+[m|t|l]*s[_v\d]*[_Promo]*$`)
-	mtStandardN, _ = regexp.Compile(`^Standard_N[C|D|V]\d+r?[_v\d]*[_Promo]*$`)
-
 	// azure:///subscriptions/0badafdf-1234-abcd-wxyz-123456789/...
 	//  => 0badafdf-1234-abcd-wxyz-123456789
 	azureSubRegex = regexp.MustCompile("azure:///subscriptions/([^/]*)/*")
@@ -277,12 +266,12 @@ func getRetailPrice(region string, skuName string, currencyCode string, spot boo
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return "", fmt.Errorf("Error getting response: %v", err)
+		return "", fmt.Errorf("error getting response: %v", err)
 	}
 
 	jsonErr := json.Unmarshal(body, &pricingPayload)
 	if jsonErr != nil {
-		return "", fmt.Errorf("Error unmarshalling data: %v", jsonErr)
+		return "", fmt.Errorf("error unmarshalling data: %v", jsonErr)
 	}
 
 	retailPrice := ""
@@ -304,7 +293,7 @@ func getRetailPrice(region string, skuName string, currencyCode string, spot boo
 	}
 
 	if retailPrice == "" {
-		return retailPrice, fmt.Errorf("Couldn't find price for product \"%s\" in \"%s\" region", skuName, region)
+		return retailPrice, fmt.Errorf("couldn't find price for product \"%s\" in \"%s\" region", skuName, region)
 	}
 
 	return retailPrice, nil
@@ -335,7 +324,7 @@ func toRegionID(meterRegion string, regions map[string]string) (string, error) {
 			return regionID, nil
 		}
 	}
-	return "", fmt.Errorf("Couldn't find region %q", meterRegion)
+	return "", fmt.Errorf("couldn't find region %q", meterRegion)
 }
 
 // azure has very inconsistent naming standards between display names from the rate card api and display names from the regions api
@@ -632,7 +621,7 @@ func (az *Azure) loadAzureAuthSecret(force bool) (*AzureServiceKey, error) {
 
 	exists, err := fileutil.FileExists(models.AuthSecretPath)
 	if !exists || err != nil {
-		return nil, fmt.Errorf("Failed to locate service account file: %s", models.AuthSecretPath)
+		return nil, fmt.Errorf("failed to locate service account file: %s", models.AuthSecretPath)
 	}
 
 	result, err := os.ReadFile(models.AuthSecretPath)
@@ -661,7 +650,7 @@ func (az *Azure) loadAzureStorageConfig(force bool) (*AzureStorageConfig, error)
 
 	exists, err := fileutil.FileExists(models.StorageConfigSecretPath)
 	if !exists || err != nil {
-		return nil, fmt.Errorf("Failed to locate azure storage config file: %s", models.StorageConfigSecretPath)
+		return nil, fmt.Errorf("failed to locate azure storage config file: %s", models.StorageConfigSecretPath)
 	}
 
 	result, err := os.ReadFile(models.StorageConfigSecretPath)
@@ -733,42 +722,6 @@ func addSuffix(mt string, suffixes ...string) []string {
 		result[i] = createString(parts[0], "_", parts[1], s, suffix)
 	}
 	return result
-}
-
-func getMachineTypeVariants(mt string) []string {
-	switch {
-	case mtStandardB.MatchString(mt):
-		return []string{createString(mt, "s")}
-	case mtStandardD.MatchString(mt):
-		var result []string
-		result = append(result, addSuffix(mt, "s")[0])
-		dsType := strings.ReplaceAll(mt, "Standard_D", "Standard_DS")
-		result = append(result, dsType)
-		result = append(result, addSuffix(dsType, "-1", "-2", "-4", "-8")...)
-		return result
-	case mtStandardE.MatchString(mt):
-		return addSuffix(mt, "s", "-2s", "-4s", "-8s", "-16s", "-32s")
-	case mtStandardF.MatchString(mt):
-		return addSuffix(mt, "s")
-	case mtStandardG.MatchString(mt):
-		var result []string
-		gsType := strings.ReplaceAll(mt, "Standard_G", "Standard_GS")
-		result = append(result, gsType)
-		return append(result, addSuffix(gsType, "-4", "-8", "-16")...)
-	case mtStandardL.MatchString(mt):
-		return addSuffix(mt, "s")
-	case mtStandardM.MatchString(mt) && strings.HasSuffix(mt, "ms"):
-		base := strings.TrimSuffix(mt, "ms")
-		return addSuffix(base, "-2ms", "-4ms", "-8ms", "-16ms", "-32ms", "-64ms")
-	case mtStandardM.MatchString(mt) && (strings.HasSuffix(mt, "ls") || strings.HasSuffix(mt, "ts")):
-		return []string{}
-	case mtStandardM.MatchString(mt) && strings.HasSuffix(mt, "s"):
-		base := strings.TrimSuffix(mt, "s")
-		return addSuffix(base, "", "m")
-	case mtStandardN.MatchString(mt):
-		return addSuffix(mt, "s")
-	}
-	return []string{}
 }
 
 func (az *Azure) GetManagementPlatform() (string, error) {
@@ -1172,7 +1125,7 @@ func (az *Azure) NodePricing(key models.Key) (*models.Node, models.PricingMetada
 
 	c, err := az.GetConfig()
 	if err != nil {
-		return nil, meta, fmt.Errorf("No default pricing data available")
+		return nil, meta, fmt.Errorf("no default pricing data available")
 	}
 
 	var vcpuCost string

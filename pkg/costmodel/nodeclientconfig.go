@@ -28,7 +28,7 @@ func NewNodeClientConfigFromEnv() (*nodes.NodeClientConfig, error) {
 	localProxy := env.GetNodeStatsLocalProxy()
 
 	if strings.TrimSpace(clusterId) == "" {
-		return nil, fmt.Errorf("cluster id is required and cannot be exclusively whitespace.")
+		return nil, fmt.Errorf("cluster id is required and cannot be exclusively whitespace")
 	}
 
 	var transport *http.Transport

@@ -38,7 +38,7 @@ func newConfigMap(configMapName string, dataValue string) *v1.ConfigMap {
 func TestConfigWatcherSingleHandler(t *testing.T) {
 	// Test that a single watcher added for the configmap test-config is executed when
 	// triggered
-	var didRun bool = false
+	var didRun = false
 
 	w := NewConfigMapWatchers(nil, "", newTestWatcher(t, TestConfigMapName, "single", &didRun))
 	f := w.toWatchFunc()
@@ -53,8 +53,8 @@ func TestConfigWatcherSingleHandler(t *testing.T) {
 
 func TestConfigWatcherMultipleHandlers(t *testing.T) {
 	// Test that adding two different configmap watchers aren't both triggered on a configmap update
-	var firstDidRun bool = false
-	var secondDidRun bool = false
+	var firstDidRun = false
+	var secondDidRun = false
 
 	w := NewConfigMapWatchers(
 		nil,
@@ -79,9 +79,9 @@ func TestConfigWatcherMultipleHandlers(t *testing.T) {
 
 func TestConfigWatcherMultipleHandlersForSameConfig(t *testing.T) {
 	// Test that adding two different configmap watchers for the same configmap are both triggered
-	var firstDidRun bool = false
-	var secondDidRun bool = false
-	var thirdDidRun bool = false
+	var firstDidRun = false
+	var secondDidRun = false
+	var thirdDidRun = false
 
 	w := NewConfigMapWatchers(
 		nil,
@@ -113,9 +113,9 @@ func TestConfigWatcherMultipleHandlersForSameConfig(t *testing.T) {
 func TestConfigMapWatcherWithAdd(t *testing.T) {
 	// Test that adding two different configmap watchers for the same configmap are both triggered
 	// when using Add() and AddWatcher()
-	var firstDidRun bool = false
-	var secondDidRun bool = false
-	var thirdDidRun bool = false
+	var firstDidRun = false
+	var secondDidRun = false
+	var thirdDidRun = false
 
 	a, b, c := newTestWatcher(t, TestConfigMapName, "first", &firstDidRun),
 		newTestWatcher(t, AlternateTestConfigMapName, "alternate", &secondDidRun),

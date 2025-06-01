@@ -23,7 +23,7 @@ func IsK8s(labels map[string]string) bool {
 	return false
 }
 
-var parseProviderIDRx = regexp.MustCompile("^.+\\/(.+)?") // Capture "gke-cluster-3-default-pool-xxxx-yy" from "projects/###/instances/gke-cluster-3-default-pool-xxxx-yy"
+var parseProviderIDRx = regexp.MustCompile(`^.+/(.+)?`) // Capture "gke-cluster-3-default-pool-xxxx-yy" from "projects/###/instances/gke-cluster-3-default-pool-xxxx-yy"
 
 func ParseProviderID(id string) string {
 	match := parseProviderIDRx.FindStringSubmatch(id)

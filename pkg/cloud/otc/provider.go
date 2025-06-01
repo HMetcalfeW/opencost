@@ -217,39 +217,6 @@ func (otc *OTC) DownloadPricingData() error {
 	otc.clusterManagementPrice = 0.10 // TODO: What is the cluster management price?
 	otc.projectID = c.ProjectID
 
-	// Slice with all nodes currently present in the cluster.
-	nodeList := otc.Clientset.GetAllNodes()
-
-	// Slice with all storage classes.
-	storageClasses := otc.Clientset.GetAllStorageClasses()
-	for _, tmp := range storageClasses {
-		fmt.Println("storage class found:")
-		fmt.Println(tmp.Parameters)
-		fmt.Println(tmp.Labels)
-		fmt.Println(tmp.TypeMeta)
-		fmt.Println(tmp.Size)
-	}
-
-	// Slice with all persistent volumes present in the cluster
-	pvList := otc.Clientset.GetAllPersistentVolumes()
-
-	// Create a slice of all existing keys in the current cluster.
-	// (keys like "eu-de,s3.medium.1,linux" or "eu-de,s3.xlarge.2,windows")
-	inputkeys := make(map[string]bool)
-	tmp := []string{}
-	for _, node := range nodeList {
-		labels := node.Labels
-		key := otc.GetKey(labels, node)
-		inputkeys[key.Features()] = true
-		tmp = append(tmp, key.Features())
-	}
-	for _, pv := range pvList {
-		fmt.Println("storage class name \"" + pv.Spec.StorageClassName + "\" found")
-		key := otc.GetPVKey(pv, map[string]string{}, "eu-de")
-		inputkeys[key.Features()] = true
-		tmp = append(tmp, key.Features())
-	}
-
 	otc.Pricing = make(map[string]*OTCPricing)
 	otc.ValidPricingKeys = make(map[string]bool)
 

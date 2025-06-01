@@ -72,7 +72,7 @@ type BillingExportParser struct {
 }
 
 // match "SubscriptionGuid" in "Abonnement-GUID (SubscriptionGuid)"
-var getParenContentRegEx = regexp.MustCompile("\\((.*?)\\)")
+var getParenContentRegEx = regexp.MustCompile(`\((.*?)\)`)
 
 func NewBillingParseSchema(headers []string) (*BillingExportParser, error) {
 	// clear BOM from headers

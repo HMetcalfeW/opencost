@@ -11,6 +11,7 @@ import (
 
 	"github.com/opencost/opencost/core/pkg/clustercache"
 	"github.com/opencost/opencost/pkg/cloud/models"
+	"github.com/stretchr/testify/require"
 	v1 "k8s.io/api/core/v1"
 )
 
@@ -302,9 +303,7 @@ func Test_populate_pricing(t *testing.T) {
 	}
 
 	lbPricing, _ := awsTest.LoadBalancerPricing()
-	if lbPricing.Cost != 0.0225 {
-		t.Fatalf("expected loadbalancer pricing of 0.0225 but got %f (us-east-2)", lbPricing.Cost)
-	}
+	require.Equal(t, lbPricing.Cost, 0.0225, "expected loadbalancer pricing of 0.0225 but got %f (us-east-2)", lbPricing.Cost)
 
 	// Case 1 - Only accept `"marketoption":"OnDemand"`
 	inputkeysCase1 := map[string]bool{
@@ -312,9 +311,7 @@ func Test_populate_pricing(t *testing.T) {
 	}
 
 	fixture, err = os.Open("testdata/pricing-us-east-1.json")
-	if err != nil {
-		t.Fatalf("failed to load pricing fixture: %s", err)
-	}
+	require.NoError(t, err, "failed to load pricing fixture: %s", err)
 
 	testResponseCase1 := http.Response{
 		Body: io.NopCloser(fixture),
@@ -326,7 +323,8 @@ func Test_populate_pricing(t *testing.T) {
 		},
 	}
 
-	awsTest.populatePricing(&testResponseCase1, inputkeysCase1)
+	err = awsTest.populatePricing(&testResponseCase1, inputkeysCase1)
+	require.NoError(t, err)
 
 	expectedProdTermsInstanceOndemandCase1 := &AWSProductTerms{
 		Sku:     "H7NGEAC6UEHNTKSJ",

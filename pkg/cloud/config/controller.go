@@ -351,7 +351,7 @@ func (c *Controller) ExportConfigs(key string) (*Configurations, error) {
 	if key != "" {
 		conf, ok := activeConfigs[key]
 		if !ok {
-			return nil, fmt.Errorf("Config with key %s does not exist or is inactive", key)
+			return nil, fmt.Errorf("config with key %s does not exist or is inactive", key)
 		}
 		sanitizedConfig := conf.Sanitize()
 		err := configs.Insert(sanitizedConfig)

@@ -53,7 +53,7 @@ func (hw *HelmWatcher) GetConfigs() []cloud.KeyedConfig {
 			log.Errorf("HelmWatcher: AzureStorage: Error reading json: %s", err2.Error())
 			return nil
 		}
-		if asc != nil && !asc.IsEmpty() {
+		if !asc.IsEmpty() {
 			// If subscription id is not set it may be present in the rate card API
 			if asc.SubscriptionId == "" {
 				ask := &azure.AzureServiceKey{}
@@ -61,9 +61,8 @@ func (hw *HelmWatcher) GetConfigs() []cloud.KeyedConfig {
 				if err3 != nil {
 					log.Errorf("HelmWatcher: AzureStorage: AzureRateCard: %s", err3)
 				}
-				if ask != nil {
-					asc.SubscriptionId = ask.SubscriptionID
-				}
+
+				asc.SubscriptionId = ask.SubscriptionID
 			}
 			// If SubscriptionID is still empty check the customPricing
 			if asc.SubscriptionId == "" {
@@ -96,7 +95,7 @@ func (hw *HelmWatcher) GetConfigs() []cloud.KeyedConfig {
 			if err2 != nil {
 				log.Errorf("HelmWatcher: GCP: %s", err2)
 			}
-			if key != nil && len(key) != 0 {
+			if len(key) != 0 {
 				bqc.Key = key
 			}
 
@@ -179,7 +178,7 @@ func (cfw *ConfigFileWatcher) GetConfigs() []cloud.KeyedConfig {
 		if err2 != nil {
 			log.Errorf("ConfigFileWatcher: GCP: %s", err2)
 		}
-		if key != nil && len(key) != 0 {
+		if len(key) != 0 {
 			bqc.Key = key
 		}
 

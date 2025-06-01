@@ -84,7 +84,13 @@ func (c *CSVProvider) DownloadPricingData() error {
 		if endpoint != "" {
 			conf = conf.WithEndpoint(endpoint)
 		}
-		s3Client := s3.New(session.New(conf))
+		sess, err := session.NewSession(conf)
+		if err != nil {
+			return fmt.Errorf("failed to create AWS session: %w", err)
+		}
+
+		s3Client := s3.New(sess)
+
 		bucketAndKey := strings.Split(strings.TrimPrefix(c.CSVLocation, "s3://"), "/")
 		if len(bucketAndKey) == 2 {
 			out, err := s3Client.GetObject(&s3.GetObjectInput{
@@ -100,7 +106,7 @@ func (c *CSVProvider) DownloadPricingData() error {
 			c.PricingPV = pvpricing
 			c.GPUClassPricing = gpupricing
 			c.GPULabelPricing = gpulabelpricing
-			return fmt.Errorf("Invalid s3 URI: %s", c.CSVLocation)
+			return fmt.Errorf("invalid s3 URI: %s", c.CSVLocation)
 		}
 	} else {
 		csvr, csverr = GetCsv(c.CSVLocation)
@@ -273,7 +279,7 @@ func (c *CSVProvider) NodePricing(key models.Key) (*models.Node, models.PricingM
 
 	node := c.nodePricing(key)
 	if node == nil {
-		return nil, models.PricingMetadata{}, fmt.Errorf("Unable to find Node matching `%s`:`%s`", key.ID(), key.Features())
+		return nil, models.PricingMetadata{}, fmt.Errorf("unable to find Node matching `%s`:`%s`", key.ID(), key.Features())
 	}
 	if t := key.GPUType(); t != "" {
 		t = strings.ToLower(t)
