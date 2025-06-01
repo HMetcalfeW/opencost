@@ -408,7 +408,6 @@ func (alibaba *Alibaba) DownloadPricingData() error {
 	alibaba.clients = make(map[string]*sdk.Client)
 	alibaba.Pricing = make(map[string]*AlibabaPricing)
 	for _, node := range nodeList {
-		pricingObj := &AlibabaPricing{}
 		slimK8sNode := generateSlimK8sNodeFromV1Node(node)
 
 		if client, ok = alibaba.clients[slimK8sNode.RegionID]; !ok {
@@ -435,7 +434,7 @@ func (alibaba *Alibaba) DownloadPricingData() error {
 			continue
 		}
 
-		pricingObj, err = processDescribePriceAndCreateAlibabaPricing(client, slimK8sNode, signer, c)
+		pricingObj, err := processDescribePriceAndCreateAlibabaPricing(client, slimK8sNode, signer, c)
 
 		if err != nil {
 			return fmt.Errorf("failed to create pricing information for node with type %s with error: %w", slimK8sNode.InstanceType, err)
@@ -463,7 +462,6 @@ func (alibaba *Alibaba) DownloadPricingData() error {
 		if pvRegion == "" {
 			pvRegion = alibaba.ClusterRegion
 		}
-		pricingObj := &AlibabaPricing{}
 		slimK8sDisk := generateSlimK8sDiskFromV1PV(pv, pvRegion)
 		lookupKey, err = determineKeyForPricing(slimK8sDisk)
 		if err != nil {
@@ -481,7 +479,7 @@ func (alibaba *Alibaba) DownloadPricingData() error {
 			alibaba.clients[slimK8sDisk.RegionID] = client
 		}
 		signer = signers.NewAccessKeySigner(aak)
-		pricingObj, err = processDescribePriceAndCreateAlibabaPricing(client, slimK8sDisk, signer, c)
+		pricingObj, err := processDescribePriceAndCreateAlibabaPricing(client, slimK8sDisk, signer, c)
 		if err != nil {
 			return fmt.Errorf("failed to create pricing information for pv with category %s with error: %w", slimK8sDisk.DiskCategory, err)
 		}

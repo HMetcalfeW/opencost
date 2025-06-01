@@ -1011,15 +1011,6 @@ func (cm *CostModel) GetNodeCost() (map[string]*costAnalyzerCloud.Node, error) {
 				defaultRAMPrice = 0
 			}
 
-			defaultGPUPrice, err := strconv.ParseFloat(cfg.GPU, 64)
-			if err != nil {
-				log.Errorf("Could not parse default gpu price")
-				defaultGPUPrice = 0
-			}
-			if math.IsNaN(defaultGPUPrice) {
-				log.Warnf("defaultGPU parsed as NaN. Setting to 0.")
-				defaultGPUPrice = 0
-			}
 			// Just say no to doing the ratios!
 			cpuCost := defaultCPUCorePrice * cpu
 			gpuCost := gpuPrice * gpuc
