@@ -2,7 +2,7 @@ package config
 
 import (
 	"fmt"
-	"io/ioutil"
+	"os"
 	"path"
 
 	"github.com/opencost/opencost/pkg/cloud"
@@ -41,7 +41,7 @@ func (hw *HelmWatcher) GetConfigs() []cloud.KeyedConfig {
 
 	// If file does not exist implies that this configuration method was not used
 	if exists {
-		result, err2 := ioutil.ReadFile(storageConfigSecretPath)
+		result, err2 := os.ReadFile(storageConfigSecretPath)
 		if err2 != nil {
 			log.Errorf("HelmWatcher: AzureStorage: Error reading file: %s", err2.Error())
 			return nil
@@ -302,7 +302,7 @@ func loadFile[T any](path string, content T) error {
 		return nil
 	}
 
-	result, err := ioutil.ReadFile(path)
+	result, err := os.ReadFile(path)
 	if err != nil {
 		return fmt.Errorf("loadFile: Error reading file: %s", err.Error())
 	}
