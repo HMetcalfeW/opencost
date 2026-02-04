@@ -1,0 +1,6 @@
+type: AZURE
+config:
+  storage_account: myaccount
+  storage_account_key: "base64encodedkey=="
+  container: opencost-data
+  endpoint: "blob.core.windows.net"

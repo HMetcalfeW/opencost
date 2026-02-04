@@ -1,0 +1,5 @@
+type: AZURE
+config:
+  storage_account: myaccount
+  storage_connection_string: "DefaultEndpointsProtocol=https;AccountName=myaccount;AccountKey=base64key==;EndpointSuffix=core.windows.net"
+  container: opencost-data

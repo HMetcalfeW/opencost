@@ -56,6 +56,9 @@ var defaultAzureConfig = AzureConfig{
 }
 
 // AzureConfig Azure storage configuration.
+// TODO: Consider refactoring authentication fields into substructures (e.g., SharedKeyAuth, ClientSecretAuth, ManagedIdentityAuth)
+// to improve separation of concerns and align with cloud-integration pattern. This would be a breaking change requiring
+// migration of existing configurations.
 type AzureConfig struct {
 	StorageAccountName      string         `yaml:"storage_account"`
 	StorageAccountKey       string         `yaml:"storage_account_key"`
@@ -68,6 +71,9 @@ type AzureConfig struct {
 	PipelineConfig          PipelineConfig `yaml:"pipeline_config"`
 	ReaderConfig            ReaderConfig   `yaml:"reader_config"`
 	HTTPConfig              HTTPConfig     `yaml:"http_config"`
+	TenantID                string         `yaml:"tenant_id"`
+	ClientID                string         `yaml:"client_id"`
+	ClientSecret            string         `yaml:"client_secret"`
 }
 
 type ReaderConfig struct {
@@ -101,6 +107,19 @@ func (conf *AzureConfig) validate() error {
 
 	if conf.StorageAccountKey != "" && conf.StorageConnectionString != "" {
 		errMsg = append(errMsg, "storage_account_key and storage_connection_string cannot both be set")
+	}
+
+	// Client secret fields cannot be combined with other auth methods
+	if conf.TenantID != "" && conf.StorageAccountKey != "" {
+		errMsg = append(errMsg, "tenant_id cannot be set when using storage_account_key authentication")
+	}
+
+	if conf.TenantID != "" && conf.StorageConnectionString != "" {
+		errMsg = append(errMsg, "tenant_id cannot be set when using storage_connection_string authentication")
+	}
+
+	if conf.TenantID != "" && conf.UserAssignedID != "" {
+		errMsg = append(errMsg, "tenant_id cannot be set when using user_assigned_id authentication")
 	}
 
 	if conf.StorageAccountName == "" {
@@ -457,6 +476,26 @@ func getContainerClient(conf AzureConfig) (*container.Client, error) {
 		if err != nil {
 			return nil, fmt.Errorf("error creating client with shared key credential: %w", err)
 		}
+		log.Debugf("AzureStorage: Using shared key authentication")
+		return containerClient, nil
+	}
+
+	// Use client secret credential if set
+	if conf.TenantID != "" && conf.ClientID != "" && conf.ClientSecret != "" {
+		cred, err := azidentity.NewClientSecretCredential(
+			conf.TenantID,
+			conf.ClientID,
+			conf.ClientSecret,
+			nil,
+		)
+		if err != nil {
+			return nil, fmt.Errorf("error creating client secret credential: %w", err)
+		}
+		containerClient, err := container.NewClient(containerURL, cred, opt)
+		if err != nil {
+			return nil, fmt.Errorf("error creating client with client secret credential: %w", err)
+		}
+		log.Debugf("AzureStorage: Using client secret authentication for tenant '%s'", conf.TenantID)
 		return containerClient, nil
 	}
 
@@ -468,9 +507,11 @@ func getContainerClient(conf AzureConfig) (*container.Client, error) {
 		msiOpt := &azidentity.ManagedIdentityCredentialOptions{}
 		msiOpt.ID = azidentity.ClientID(conf.UserAssignedID)
 		cred, err = azidentity.NewManagedIdentityCredential(msiOpt)
+		log.Debugf("AzureStorage: Using managed identity with user assigned ID")
 	} else {
 		// Otherwise use Default Azure Credential
 		cred, err = azidentity.NewDefaultAzureCredential(nil)
+		log.Debugf("AzureStorage: Using default Azure credential")
 	}
 
 	if err != nil {
